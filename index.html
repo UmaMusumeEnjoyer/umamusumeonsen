@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Nhân Vật Umamusume</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .character-item {
+            display: inline-block;
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .character-item img {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+        }
+        .close-btn {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .condition-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .condition-gallery img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Danh Sách Nhân Vật Umamusume</h1>
+
+    <input type="text" id="search-bar" onkeyup="filterCharacters()" placeholder="Tìm kiếm nhân vật theo tên...">
+
+    <div id="character-grid"></div>
+
+    <div id="character-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body-content"></div>
+        </div>
+    </div>
+
+<script>
+    // --- DỮ LIỆU NHÚNG TỪ PYTHON ---
+    const allCharacters = [{"tên": "Special Week", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1001_100101.png"}, {"tên": "Silence Suzuka", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1002_100201.png"}, {"tên": "Tokai Teio", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1003_100301.png"}, {"tên": "Maruzensky", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1004_100401.png"}, {"tên": "Fuji Kiseki", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1005_100501.png"}, {"tên": "Oguri Cap", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1006_100601.png"}, {"tên": "Gold Ship", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1007_100701.png"}, {"tên": "Vodka", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1008_100801.png"}, {"tên": "Daiwa Scarlet", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1009_100901.png"}, {"tên": "Taiki Shuttle", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1010_101001.png"}, {"tên": "Grass Wonder", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1011_101101.png"}, {"tên": "Hishi Amazon", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1012_101201.png"}, {"tên": "Mejiro McQueen", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1013_101301.png"}, {"tên": "El Condor Pasa", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1014_101401.png"}, {"tên": "TM Opera O", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1015_101501.png"}, {"tên": "Narita Brian", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1016_101601.png"}, {"tên": "Symboli Rudolf", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1017_101701.png"}, {"tên": "Air Groove", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1018_101801.png"}, {"tên": "Agnes Digital", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1019_101901.png"}, {"tên": "Seiun Sky", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1020_102001.png"}, {"tên": "Tamamo Cross", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1021_102101.png"}, {"tên": "Fine Motion", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1022_102201.png"}, {"tên": "Biwa Hayahide", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1023_102301.png"}, {"tên": "Mayano Top Gun", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1024_102401.png"}, {"tên": "Manhattan Cafe", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1025_102501.png"}, {"tên": "Mihono Bourbon", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1026_102601.png"}, {"tên": "Mejiro Ryan", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1027_102701.png"}, {"tên": "Hishi Akebono", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1028_102801.png"}, {"tên": "Yukino Bijin", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1029_102901.png"}, {"tên": "Rice Shower", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1030_103001.png"}, {"tên": "Ines Fujin", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1031_103101.png"}, {"tên": "Agnes Tachyon", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1032_103201.png"}, {"tên": "Admire Vega", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1033_103301.png"}, {"tên": "Inari One", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1034_103401.png"}, {"tên": "Winning Ticket", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1035_103501.png"}, {"tên": "Air Shakur", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1036_103601.png"}, {"tên": "Eishin Flash", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1037_103701.png"}, {"tên": "Curren Chan", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1038_103801.png"}, {"tên": "Kawakami Princess", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1039_103901.png"}, {"tên": "Gold City", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1040_104001.png"}, {"tên": "Sakura Bakushin O", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1041_104101.png"}, {"tên": "Seeking the Pearl", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1042_104201.png"}, {"tên": "Shinko Windy", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1043_104301.png"}, {"tên": "Sweep Tosho", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1044_104401.png"}, {"tên": "Super Creek", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1045_104501.png"}, {"tên": "Smart Falcon", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1046_104601.png"}, {"tên": "Zenno Rob Roy", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1047_104701.png"}, {"tên": "Tosen Jordan", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1048_104801.png"}, {"tên": "Nakayama Festa", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1049_104901.png"}, {"tên": "Narita Taishin", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1050_105001.png"}, {"tên": "Nishino Flower", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1051_105101.png"}, {"tên": "Haru Urara", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1052_105201.png"}, {"tên": "Bamboo Memory", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1053_105301.png"}, {"tên": "Biko Pegasus", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1054_105401.png"}, {"tên": "Marvelous Sunday", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1055_105501.png"}, {"tên": "Matikanefukukitaru", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1056_105601.png"}, {"tên": "Mr. C.B.", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1057_105701.png"}, {"tên": "Meisho Doto", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1058_105801.png"}, {"tên": "Mejiro Dober", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1059_105901.png"}, {"tên": "Nice Nature", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1060_106001.png"}, {"tên": "King Halo", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1061_106101.png"}, {"tên": "Matikanetannhauser", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1062_106201.png"}, {"tên": "Ikuno Dictus", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1063_106301.png"}, {"tên": "Mejiro Palmer", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1064_106401.png"}, {"tên": "Daitaku Helios", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1065_106501.png"}, {"tên": "Twin Turbo", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1066_106601.png"}, {"tên": "Satono Diamond", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1067_106701.png"}, {"tên": "Kitasan Black", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1068_106801.png"}, {"tên": "Sakura Chiyono O", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1069_106901.png"}, {"tên": "Sirius Symboli", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1070_107001.png"}, {"tên": "Mejiro Ardan", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1071_107101.png"}, {"tên": "Yaeno Muteki", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1072_107201.png"}, {"tên": "Tsurumaru Tsuyoshi", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1073_107301.png"}, {"tên": "Mejiro Bright", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1074_107401.png"}, {"tên": "Sakura Laurel", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1076_107601.png"}, {"tên": "Narita Top Road", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1077_107701.png"}, {"tên": "Yamanin Zephyr", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1078_107801.png"}, {"tên": "Furioso", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1079_107901.png"}, {"tên": "Transcend", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1080_108001.png"}, {"tên": "Espoir City", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1081_108101.png"}, {"tên": "North Flight", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1082_108201.png"}, {"tên": "Symboli Kris S", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1083_108301.png"}, {"tên": "Tanino Gimlet", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1084_108401.png"}, {"tên": "Daiichi Ruby", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1085_108501.png"}, {"tên": "Mejiro Ramonu", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1086_108601.png"}, {"tên": "Aston Machan", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1087_108701.png"}, {"tên": "Satono Crown", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1088_108801.png"}, {"tên": "Cheval Grand", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1089_108901.png"}, {"tên": "Verxina", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1090_109001.png"}, {"tên": "Vivlos", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1091_109101.png"}, {"tên": "Dantsu Flame", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1092_109201.png"}, {"tên": "K.S.Miracle", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1093_109301.png"}, {"tên": "Jungle Pocket", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1094_109401.png"}, {"tên": "Believe", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1095_109501.png"}, {"tên": "No Reason", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1096_109601.png"}, {"tên": "Still in Love", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1097_109701.png"}, {"tên": "Copano Rickey", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1098_109801.png"}, {"tên": "Hokko Tarumae", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1099_109901.png"}, {"tên": "Wonder Acute", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1100_110001.png"}, {"tên": "Sounds of Earth", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1102_110201.png"}, {"tên": "Katsuragi Ace", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1104_110401.png"}, {"tên": "Neo Universe", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1105_110501.png"}, {"tên": "Hishi Miracle", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1106_110601.png"}, {"tên": "Tap Dance City", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1107_110701.png"}, {"tên": "Duramente", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1108_110801.png"}, {"tên": "Rhein Kraft", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1109_110901.png"}, {"tên": "Cesario", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1110_111001.png"}, {"tên": "Air Messiah", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1111_111101.png"}, {"tên": "Fusaichi Pandora", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1113_111301.png"}, {"tên": "Orfevre", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1115_111501.png"}, {"tên": "Gentildonna", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1116_111601.png"}, {"tên": "Win Variation", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1117_111701.png"}, {"tên": "Dream Journey", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1119_111901.png"}, {"tên": "Calstone Light O", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1120_112001.png"}, {"tên": "Durandal", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1121_112101.png"}, {"tên": "Bubble Gum Fellow", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1124_112401.png"}, {"tên": "Fenomeno", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1127_112701.png"}, {"tên": "Gran Alegria", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1131_113101.png"}, {"tên": "Loves Only You", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1132_113201.png"}, {"tên": "Chrono Genesis", "avatar": "https://gametora.com/images/umamusume/characters/chara_stand_1133_113301.png"}];
+    const characterConditionsMap = {"Maruzensky": [1, 3, 5, 6], "Fuji Kiseki": [1, 3, 5, 6], "Oguri Cap": [1, 3, 5, 6], "Gold Ship": [1, 3, 5, 6], "Vodka": [1, 3, 5, 6], "Grass Wonder": [1, 3, 5, 6], "Hishi Amazon": [1, 3, 5, 6], "Mejiro McQueen": [1, 3, 5, 6], "Narita Brian": [1, 3, 5, 6], "Air Groove": [1, 3, 5, 6], "Fine Motion": [1, 3, 5, 6], "Biwa Hayahide": [1, 3, 5, 6], "Mihono Bourbon": [1, 3, 5, 6], "Hishi Akebono": [1, 3, 5, 6], "Yukino Bijin": [1, 3, 5, 6], "Ines Fujin": [1, 3, 5, 6], "Admire Vega": [1, 3, 5, 6], "Inari One": [1, 3, 5, 6], "Winning Ticket": [1, 3, 5, 6], "Air Shakur": [1, 3, 5, 6], "Gold City": [1, 3, 5, 6], "Seeking the Pearl": [1, 3, 5, 6], "Sweep Tosho": [1, 3, 5, 6], "Tosen Jordan": [1, 3, 5, 6], "Narita Taishin": [1, 3, 5, 6], "Nishino Flower": [1, 3, 5, 6], "Bamboo Memory": [1, 3, 5, 6], "Mejiro Dober": [1, 3, 5, 6], "King Halo": [1, 3, 5, 6], "Matikanetannhauser": [1, 3, 5, 6], "Ikuno Dictus": [1, 3, 5, 6], "Daitaku Helios": [1, 3, 5, 6], "Sakura Chiyono O": [1, 3, 5, 6], "Mejiro Bright": [1, 3, 5, 6], "Narita Top Road": [1, 3, 5, 6], "Furioso": [1, 3, 5, 6], "Mejiro Ramonu": [1, 3, 5, 6], "Aston Machan": [1, 3, 5, 6], "Cheval Grand": [1, 3, 5, 6], "Verxina": [1, 3, 5, 6], "Jungle Pocket": [1, 3, 5, 6], "Copano Rickey": [1, 3, 5, 6], "Rhein Kraft": [1, 3, 5, 6], "Fusaichi Pandora": [1, 3, 5, 6], "Dream Journey": [1, 3, 5, 6], "Calstone Light O": [1, 3, 5, 6], "Durandal": [1, 3, 5, 6], "Bubble Gum Fellow": [1, 3, 5, 6], "Fenomeno": [1, 3, 5, 6], "Gran Alegria": [1, 3, 5, 6], "Loves Only You": [1, 3, 5, 6], "Chrono Genesis": [1, 3, 5, 6], "Special Week": [2, 4], "Silence Suzuka": [2, 4], "Tokai Teio": [2, 4], "Daiwa Scarlet": [2, 4], "Taiki Shuttle": [2, 4], "El Condor Pasa": [2, 4], "TM Opera O": [2, 4], "Symboli Rudolf": [2, 4], "Agnes Digital": [2, 4], "Seiun Sky": [2, 4], "Tamamo Cross": [2, 4], "Mayano Top Gun": [2, 4], "Manhattan Cafe": [2, 4], "Mejiro Ryan": [2, 4], "Rice Shower": [2, 4], "Agnes Tachyon": [2, 4], "Eishin Flash": [2, 4], "Kawakami Princess": [2, 4], "Sakura Bakushin O": [2, 4], "Super Creek": [2, 4], "Smart Falcon": [2, 4], "Zenno Rob Roy": [2, 4], "Nakayama Festa": [2, 4], "Haru Urara": [2, 4], "Biko Pegasus": [2, 4], "Marvelous Sunday": [2, 4], "Matikanefukukitaru": [2, 4], "Mr. C.B.": [2, 4], "Meisho Doto": [2, 4], "Nice Nature": [2, 4], "Twin Turbo": [2, 4], "Satono Diamond": [2, 4], "Kitasan Black": [2, 4], "Sirius Symboli": [2, 4], "Mejiro Ardan": [2, 4], "Yaeno Muteki": [2, 4], "Tsurumaru Tsuyoshi": [2, 4], "Sakura Laurel": [2, 4, 7], "Yamanin Zephyr": [2, 4], "Transcend": [2, 4], "Espoir City": [2, 4], "North Flight": [2, 4], "Symboli Kris S": [2, 4], "Tanino Gimlet": [2, 4], "Daiichi Ruby": [2, 4], "Satono Crown": [2, 4], "Vivlos": [2, 4], "Dantsu Flame": [2, 4], "Believe": [2, 4], "No Reason": [2, 4], "Still in Love": [2, 4], "Hokko Tarumae": [2, 4], "Wonder Acute": [2, 4], "Sounds of Earth": [2, 4], "Katsuragi Ace": [2, 4], "Hishi Miracle": [2, 4], "Tap Dance City": [2, 4], "Duramente": [2, 4], "Cesario": [2, 4], "Air Messiah": [2, 4], "Orfevre": [2, 4], "Gentildonna": [2, 4], "Win Variation": [2, 4], "Curren Chan": [3, 4, 6], "Shinko Windy": [3, 4, 6], "Mejiro Palmer": [3, 4, 6], "K.S.Miracle": [3, 4, 6], "Neo Universe": [3, 4, 6]};
+    const conditionsInfoMap = {"1": "one or more target races in December during the junior period & less than one target race by the second half of May ~ early July in the classic period", "2": "there is no target race in December during the junior period & when there is less than one target race by the second half of May ~ the first half of July during the classic period", "3": "more than one target race in December of the junior period, or when there are two or more target races by the second half of May ~ the first half of July during the classic period", "4": "there is no target race in December of the junior period, or when there are more than 2 target races by the second half of May ~ the first half of July of the classic period", "5": "more than one target race in December during the junior period and less than one target race by the second half of May ~ early July during the classic period", "6": "more than 1 target race in December, or if you have 2 or more target races by the second half of May ~ early July during the classic period", "7": "there are no target races in December > entering the classic period ~ 2 or less target races until the first half of November > 2 or more races by the second half of November ~ early January."};
+    const conditionImagesDir = "pictures";
+
+    function loadAllCharacters() {
+        const grid = document.getElementById('character-grid');
+        grid.innerHTML = '';
+
+        allCharacters.forEach(char => {
+            const item = document.createElement('div');
+            item.className = 'character-item';
+            item.onclick = () => showCharacterDetails(char.tên);
+            item.innerHTML = `
+                <img src="${char.avatar || 'https://via.placeholder.com/80?text=No+Img'}" alt="${char.tên}">
+                <p>${char.tên}</p>
+            `;
+            grid.appendChild(item);
+        });
+    }
+
+    function filterCharacters() {
+        const input = document.getElementById('search-bar');
+        const filter = input.value.toLowerCase();
+        const grid = document.getElementById('character-grid');
+        const items = grid.getElementsByClassName('character-item');
+
+        for (let i = 0; i < items.length; i++) {
+            const p = items[i].getElementsByTagName('p')[0];
+            const txtValue = p.textContent || p.innerText;
+            items[i].style.display = txtValue.toLowerCase().includes(filter) ? "" : "none";
+        }
+    }
+
+    function showCharacterDetails(characterName) {
+        const modal = document.getElementById('character-modal');
+        const modalContent = document.getElementById('modal-body-content');
+        const charData = allCharacters.find(c => c.tên === characterName);
+        const matchingConditionIds = characterConditionsMap[characterName] || [];
+
+        let conditionsHTML = '<h3>Điều kiện phù hợp:</h3>';
+
+        if (matchingConditionIds.length > 0) {
+            conditionsHTML += '<div class="condition-gallery">';
+            matchingConditionIds.forEach(id => {
+                const imgSrc = `${conditionImagesDir}/${id}.png`;
+                const description = conditionsInfoMap[id] || "Không có mô tả.";
+                conditionsHTML += `
+                    <div title="${description}">
+                        <img src="${imgSrc}" alt="Điều kiện #${id}" onerror="this.src='https://via.placeholder.com/120?text=No+Image'"class="condition-image">
+                    </div>
+                `;
+            });
+            conditionsHTML += '</div>';
+        } else {
+            conditionsHTML += '<p>Không phù hợp với điều kiện nào.</p>';
+        }
+
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <img src="${charData.avatar}" alt="${charData.tên}" style="width:120px;height:120px;border-radius:10px;">
+                <h2>${charData.tên}</h2>
+            </div>
+            <div class="modal-body">
+                ${conditionsHTML}
+            </div>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('character-modal').style.display = 'none';
+    }
+
+    function closeImageModal() {
+  document.getElementById('image-modal').style.display = 'none';
+}
+
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('condition-image')) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    modal.style.display = 'block';
+    modalImg.src = e.target.src;
+  }
+});
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('character-modal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    window.onload = loadAllCharacters;
+</script>
+
+
+    <!-- Modal phóng to ảnh điều kiện -->
+    <div id="image-modal" class="modal">
+    <span class="close-btn" onclick="closeImageModal()">&times;</span>
+    <img class="modal-content" id="modal-image">
+    </div>
+
+</body>
+</html>

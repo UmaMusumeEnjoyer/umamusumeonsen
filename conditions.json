@@ -1,0 +1,128 @@
+{
+  "filter_conditions": [
+    {
+      "id": 1,
+      "logic": "AND",
+      "description": "one or more target races in December during the junior period & less than one target race by the second half of May ~ early July in the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December (Junior)",
+          "condition": "at_least_one"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "one_or_less"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "logic": "AND",
+      "description": "there is no target race in December during the junior period & when there is less than one target race by the second half of May ~ the first half of July during the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December (Junior)",
+          "condition": "none"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "one_or_less"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "logic": "OR",
+      "description": "more than one target race in December of the junior period, or when there are two or more target races by the second half of May ~ the first half of July during the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December (Junior)",
+          "condition": "at_least_one"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "two_or_more"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "logic": "OR",
+      "description": "there is no target race in December of the junior period, or when there are more than 2 target races by the second half of May ~ the first half of July of the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December (Junior)",
+          "condition": "none"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "two_or_more"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "logic": "AND",
+      "description": "more than one target race in December during the junior period and less than one target race by the second half of May ~ early July during the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December (Junior)",
+          "condition": "at_least_one"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "one_or_less"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "logic": "OR",
+      "description": "more than 1 target race in December, or if you have 2 or more target races by the second half of May ~ early July during the classic period",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December",
+          "condition": "at_least_one"
+        },
+        {
+          "target": "target_race",
+          "time_period": "May (second half) to July (first half) (Classic)",
+          "condition": "two_or_more"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "logic": "AND",
+      "description": "there are no target races in December > entering the classic period ~ 2 or less target races until the first half of November > 2 or more races by the second half of November ~ early January.",
+      "rules": [
+        {
+          "target": "target_race",
+          "time_period": "December",
+          "condition": "none"
+        },
+        {
+          "target": "target_race",
+          "time_period": "Classic (start) to November (first half) (Classic)",
+          "condition": "two_or_fewer"
+        },
+        {
+          "target": "race",
+          "time_period": "November (second half) to January (first half)",
+          "condition": "two_or_more"
+        }
+      ]
+    }
+  ]
+}
