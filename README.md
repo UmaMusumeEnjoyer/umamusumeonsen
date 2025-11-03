@@ -249,4 +249,4 @@ Dự án này được tạo ra cho mục đích học tập và cá nhân. Dữ
 
 ---
 
-**Được tạo với ❤️ bởi UmaMusumeEnjoyer**
+**Được tạo với ❤️ bởi UmaMusumeEnjoyer và [Nguyễn Đoàn Nguyên (itsdoanguen)](https://github.com/itsdoanguen)**
